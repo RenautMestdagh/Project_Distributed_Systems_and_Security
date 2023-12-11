@@ -42,12 +42,12 @@ public class ReceiveThread implements Runnable {
 
                 // String messageWithMetadata is built as: message,cellIndex,preimageTag
 
-                int lastIndex = messageWithMetadata.lastIndexOf(",");
-                int secondLastCommaIndex = messageWithMetadata.lastIndexOf(',', lastIndex - 1);
+                int lastCommaIndex = messageWithMetadata.lastIndexOf(",");
+                int secondLastCommaIndex = messageWithMetadata.lastIndexOf(',', lastCommaIndex - 1);
 
                 String message = messageWithMetadata.substring(0, secondLastCommaIndex);
-                int nextCellIndex = Integer.parseInt(messageWithMetadata.substring(secondLastCommaIndex+1, lastIndex));
-                String nextPreimageTag = messageWithMetadata.substring(lastIndex + 1);
+                int nextCellIndex = Integer.parseInt(messageWithMetadata.substring(secondLastCommaIndex+1, lastCommaIndex));
+                String nextPreimageTag = messageWithMetadata.substring(lastCommaIndex + 1);
 
                 c.setNewOther(nextCellIndex, nextPreimageTag);
                 controller.addMessage(c.getName(), "Other", message);
