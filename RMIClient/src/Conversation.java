@@ -6,6 +6,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 import java.util.UUID;
 
 public class Conversation {
@@ -41,8 +42,8 @@ public class Conversation {
     private static SecretKey deriveKey(SecretKey key) throws NoSuchAlgorithmException, InvalidKeySpecException {
 
         // Convert the SecretKey to PBEKeySpec
-        char[] password = new char[0];
-        PBEKeySpec keySpec = new PBEKeySpec(password, key.getEncoded(), 10000, 256);
+        String salt = "Dcf@@4!F79DwGy8f";
+        PBEKeySpec keySpec = new PBEKeySpec(Base64.getEncoder().encodeToString(key.getEncoded()).toCharArray(), salt.getBytes(), 10000, 256);
 
         // Generate the derived key
         SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
