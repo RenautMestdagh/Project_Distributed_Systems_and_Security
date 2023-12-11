@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<StackPane alignment="BOTTOM_CENTER" prefHeight="150.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUIController">
+   <children>
+      <HBox fx:id="chatGUI" fillHeight="false" prefHeight="100.0" prefWidth="819.0">
+         <children>
+            <VBox fx:id="conversationList" minWidth="100.0" prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <Button fx:id="newChat" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#newChat" text="New Chat" HBox.hgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets bottom="15.0" />
+                     </VBox.margin>
+                  </Button>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="700.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox fx:id="currentChatLabel" prefHeight="20.0" prefWidth="200.0">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <ScrollPane fx:id="conversationScrollPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                     <content>
+                        <TextFlow prefHeight="200.0" prefWidth="200.0" />
+                     </content>
+                  </ScrollPane>
+                  <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <TextArea fx:id="messageInput" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                        <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#handleSendMessage" text="Send message">
+                           <font>
+                              <Font size="15.0" />
+                           </font>
+                           <padding>
+                              <Insets bottom="40.0" left="10.0" right="10.0" top="40.0" />
+                           </padding>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </VBox>
+         </children>
+      </HBox>
+      <ScrollPane fx:id="newChatGUI" prefWidth="830.0" visible="false">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0">
+               <children>
+                  <VBox fillWidth="false" prefWidth="780.0">
+                     <children>
+                        <Label alignment="CENTER" contentDisplay="TOP" prefWidth="800.0" text="New Chat">
+                           <font>
+                              <Font name="System Bold" size="16.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="10.0" layoutY="45.0" text="Chat Name">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="5.0" />
+                           </VBox.margin>
+                        </Label>
+                        <Label fx:id="newChatNameError" text="Chat name cannot be empty" textFill="RED" />
+                        <TextField fx:id="newChatName" prefHeight="25.0" prefWidth="238.0" />
+                        <Label text="Own entries">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <HBox prefHeight="100.0" prefWidth="800.0">
+                           <children>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Label text="My Key">
+                                       <VBox.margin>
+                                          <Insets top="2.0" />
+                                       </VBox.margin></Label>
+                                    <Label />
+                                    <Label text="My First Cell" />
+                                    <Label layoutX="10.0" layoutY="27.0" />
+                                    <Label text="My First Tag">
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin></Label>
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="690.0">
+                                 <children>
+                                    <TextArea fx:id="newChatOwnInfo" editable="false" />
+                                 </children>
+                              </VBox>
+                           </children></HBox>
+                        <Label layoutX="10.0" layoutY="45.0" text="Other entries">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets top="15.0" />
+                           </VBox.margin>
+                        </Label>
+                        <Label fx:id="newChatInputError" layoutX="10.0" layoutY="57.0" text="No fields should be empty" textFill="RED">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </Label>
+                        <HBox layoutX="10.0" layoutY="126.0" prefHeight="100.0" prefWidth="800.0">
+                           <children>
+                              <VBox prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Label text="Other Key">
+                                       <VBox.margin>
+                                          <Insets top="2.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <Label />
+                                    <Label text="Other First Cell" />
+                                    <Label layoutX="10.0" layoutY="27.0" />
+                                    <Label text="Other First Tag">
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                    </Label>
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="690.0">
+                                 <children>
+                                    <TextArea fx:id="newChatOtherInfo" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        <HBox alignment="BOTTOM_CENTER" prefWidth="800.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#submitNewChat" text="Submit" HBox.hgrow="SOMETIMES">
+                                 <HBox.margin>
+                                    <Insets right="10.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button layoutX="20.0" layoutY="10.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cancelNewChat" text="Cancel" HBox.hgrow="SOMETIMES" />
+                           </children>
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                           <padding>
+                              <Insets bottom="20.0" />
+                           </padding>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+        </content>
+      </ScrollPane>
+   </children>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="10.0" />
+   </padding>
+</StackPane>
