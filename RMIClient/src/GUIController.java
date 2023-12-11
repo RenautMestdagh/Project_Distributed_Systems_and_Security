@@ -27,7 +27,6 @@ public class GUIController {
     private MainClient mainClient;
     private final HashMap<String, TextFlow> conversations = new HashMap<>();
     private String currentChatName;
-    private Conversation tmpConversation = null;
 
     @FXML
     private HBox chatGUI;
@@ -65,7 +64,6 @@ public class GUIController {
     private TextArea newChatOtherInfo;
 
 
-
     @FXML
     private void initialize() {
         newChatNameError.setManaged(false);
@@ -83,7 +81,7 @@ public class GUIController {
                     try {
                         handleSendMessage();
                     } catch (NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | InvalidKeySpecException | BadPaddingException | InvalidKeyException | RemoteException e) {
-                        e.printStackTrace();
+                        throw new RuntimeException(e);
                     }
                     event.consume(); // Prevent the newline character from being added
                 }
@@ -102,11 +100,11 @@ public class GUIController {
         //message = message.trim().replaceAll("^\\n+|\\n+$", "");
         try {
             if (!message.isEmpty()) {
-                mainClient.sendMessage(message, currentChatName);
+                mainClient.sendMessage(currentChatName, message);
                 addMessage(currentChatName, "You", message);
             }
         } catch (NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | InvalidKeySpecException | BadPaddingException | InvalidKeyException | RemoteException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         messageInput.clear();
     }
@@ -128,7 +126,7 @@ public class GUIController {
 
     public void newChat() throws NoSuchAlgorithmException {
 
-        tmpConversation = mainClient.startNewConversation();
+        Conversation tmpConversation = mainClient.startNewConversation();
 
         String sb = Base64.getEncoder().encodeToString(tmpConversation.getOwnKey().getEncoded()) + "\n\n" +
                 tmpConversation.getOwnCell() + "\n\n" +
@@ -144,7 +142,7 @@ public class GUIController {
         newChatGUI.setVisible(false);
         chatGUI.setVisible(true);
 
-        tmpConversation = null;
+        mainClient.cancelNewConversation();
 
         newChatName.clear();
         newChatOtherInfo.clear();
@@ -175,6 +173,11 @@ public class GUIController {
             return;
         }
         String[] otherInfoArr = newChatOtherInfo.getText().split("\n");
+        if(otherInfoArr.length!=5){
+            newChatInputError.setManaged(true);
+            newChatInputError.setVisible(true);
+            return;
+        }
         if(otherInfoArr[0].isEmpty() || otherInfoArr[2].isEmpty() || otherInfoArr[4].isEmpty()){
             newChatInputError.setManaged(true);
             newChatInputError.setVisible(true);
@@ -187,8 +190,7 @@ public class GUIController {
         int otherCell = Integer.parseInt(otherInfoArr[2]);
         String otherTag = otherInfoArr[4];
 
-        tmpConversation.setOther(chatName, otherKey, otherCell,  otherTag);
-        mainClient.submitNewConversation(chatName, tmpConversation);
+        mainClient.submitNewConversation(chatName, otherKey, otherCell,  otherTag);
 
         Platform.runLater(() -> {
 

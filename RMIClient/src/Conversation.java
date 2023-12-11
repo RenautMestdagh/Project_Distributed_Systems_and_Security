@@ -1,5 +1,8 @@
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -35,14 +38,25 @@ public class Conversation {
         Conversation.bulletinBoardCells = bulletinBoardCells;
     }
 
+    private static SecretKey deriveKey(SecretKey key) throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+        // Convert the SecretKey to PBEKeySpec
+        char[] password = new char[0];
+        PBEKeySpec keySpec = new PBEKeySpec(password, key.getEncoded(), 10000, 256);
+
+        // Generate the derived key
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        return new SecretKeySpec(keyFactory.generateSecret(keySpec).getEncoded(), "AES");
+    }
+
     public void setNewOwn() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        this.ownKey = KDF.deriveKey(ownKey);
+        this.ownKey = deriveKey(ownKey);
         this.ownCell = getNewCell();
         this.ownTag = getNewTag();
     }
 
     public void setNewOther(int newOtherCell, String newOtherTag) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        this.otherKey = KDF.deriveKey(otherKey);
+        this.otherKey = deriveKey(otherKey);
         this.otherCell = newOtherCell;
         this.otherTag = newOtherTag;
     }

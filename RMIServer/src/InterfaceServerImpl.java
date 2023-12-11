@@ -1,12 +1,8 @@
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,46 +29,12 @@ public class InterfaceServerImpl extends UnicastRemoteObject implements Interfac
     }
 
     @Override
-    public synchronized ArrayList<String[]> receiveMessage(int cellIndex, String preimageTag, SecretKey symKeySender) throws RemoteException, NoSuchAlgorithmException {
-        ArrayList<String[]> messages = new ArrayList<>();
+    public byte[] receiveMessage(int cellIndex, String preimageTag) throws RemoteException, NoSuchAlgorithmException {
+        return bulletinBoard.get(cellIndex).get(cryptographicHash(preimageTag));
+    }
 
-        while (true){
-            byte[] encryptedMessageWithMetadata = bulletinBoard.get(cellIndex).get(cryptographicHash(preimageTag));
-
-            if(encryptedMessageWithMetadata==null)
-                return messages;
-
-            try{
-                Cipher cipher = Cipher.getInstance("AES");
-                cipher.init(Cipher.DECRYPT_MODE, symKeySender);
-
-                String messageWithMetadata = new String(cipher.doFinal(Base64.getDecoder().decode(encryptedMessageWithMetadata)), StandardCharsets.UTF_8);
-                bulletinBoard.get(cellIndex).remove(cryptographicHash(preimageTag));
-
-                // String messageWithMetadata is built as: message,cellIndex,preimageTag
-
-                String[] formattedMessage = new String[3];
-                int lastIndex = messageWithMetadata.lastIndexOf(",");
-                int secondLastCommaIndex = messageWithMetadata.lastIndexOf(',', lastIndex - 1);
-                String message = messageWithMetadata.substring(0, secondLastCommaIndex);
-                String nextCellIndex = messageWithMetadata.substring(secondLastCommaIndex+1, lastIndex);
-                String nextPreimageTag = messageWithMetadata.substring(lastIndex + 1);
-
-                formattedMessage[0] = message;
-                formattedMessage[1] = nextCellIndex;
-                formattedMessage[2] = nextPreimageTag;
-
-                messages.add(formattedMessage);
-
-                cellIndex = Integer.parseInt(nextCellIndex);
-                preimageTag = nextPreimageTag;
-                symKeySender = KDF.deriveKey(symKeySender);
-
-            } catch (Exception e){
-                System.out.println("Corrupted state");
-                return messages;
-            }
-        }
+    public void removeMessage(int cellIndex, String preimageTag) throws RemoteException, NoSuchAlgorithmException {
+        bulletinBoard.get(cellIndex).remove(cryptographicHash(preimageTag));
     }
 
     private String cryptographicHash(String preimageTag) throws NoSuchAlgorithmException {

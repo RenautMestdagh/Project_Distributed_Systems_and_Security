@@ -15,7 +15,6 @@ import java.rmi.registry.Registry;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
@@ -25,8 +24,9 @@ import java.util.concurrent.TimeUnit;
 
 public class MainClient extends Application {
 
-    private InterfaceServer iServer;
+    private InterfaceServer server;
     private final HashMap<String, Conversation> conversations = new HashMap<>();
+    private Conversation tmpConversation = null;
 
     @Override
     public void start(Stage stage) throws IOException, NotBoundException {
@@ -39,8 +39,8 @@ public class MainClient extends Application {
         Registry myRegistry = LocateRegistry.getRegistry("localhost", 1099);
 
         // search for CommunicationService
-        iServer = (InterfaceServer) myRegistry.lookup("CommunicationService");
-        int bulletinBoardCells = iServer.getBulletinBoardCells();
+        server = (InterfaceServer) myRegistry.lookup("CommunicationService");
+        int bulletinBoardCells = server.getBulletinBoardCells();
         Conversation.setBulletinBoardCells( String.valueOf(bulletinBoardCells).length() );
 
         Scene scene = new Scene(root, 810, 410);
@@ -51,26 +51,8 @@ public class MainClient extends Application {
 
         // Schedule the task to run every 50 milliseconds with an initial delay of 0 milliseconds
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(() -> {
-            try {
-                for(Conversation c : conversations.values()){
-                    int otherCell = c.getOtherCell();
-                    String otherTag = c.getOtherTag();
-                    SecretKey otherKey = c.getOtherKey();
-
-                    ArrayList<String[]> messages = iServer.receiveMessage(otherCell, otherTag, otherKey);
-
-                    for(String[] message : messages){
-                        controller.addMessage(c.getName(), "Other", message[0]);
-                        int nextCell = Integer.parseInt(message[1]);
-                        String nextTag = message[2];
-                        c.setNewOther(nextCell, nextTag);
-                    }
-                }
-            } catch (RemoteException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-                throw new RuntimeException(e);
-            }
-        }, 0, 50, TimeUnit.MILLISECONDS);
+        ReceiveThread receiveThread = new ReceiveThread(server, controller, conversations);
+        scheduler.scheduleAtFixedRate(receiveThread, 0, 50, TimeUnit.MILLISECONDS);
 
 
         // Set a handler for the window close event
@@ -81,7 +63,7 @@ public class MainClient extends Application {
         });
     }
 
-    public void sendMessage(String message, String chatName) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, RemoteException {
+    public void sendMessage(String chatName, String message) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, RemoteException {
         Conversation c = conversations.get(chatName);
 
         SecretKey currOwnKey = c.getOwnKey();
@@ -96,15 +78,22 @@ public class MainClient extends Application {
         String messageWithMetadata = message+","+nextOwnCell+","+nextTag;
         byte[] encryptedMessageWithMetadata = encryptMessageWithSymmetricKey(messageWithMetadata, currOwnKey);
 
-        iServer.sendMessage(currOwnCell, currOwnTag, encryptedMessageWithMetadata);
+        server.sendMessage(currOwnCell, currOwnTag, encryptedMessageWithMetadata);
     }
 
     public Conversation startNewConversation() throws NoSuchAlgorithmException {
-        return new Conversation();
+        tmpConversation = new Conversation();
+        return tmpConversation;
     }
 
-    public void submitNewConversation(String name, Conversation c) {
-        conversations.put(name, c);
+    public void cancelNewConversation() {
+        tmpConversation = null;
+    }
+
+    public void submitNewConversation(String chatName, SecretKey otherKey, int otherCell,  String otherTag) {
+        tmpConversation.setOther(chatName, otherKey, otherCell,  otherTag);
+        conversations.put(chatName, tmpConversation);
+        cancelNewConversation();
     }
 
     private byte[] encryptMessageWithSymmetricKey(String message, SecretKey key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {

@@ -9,7 +9,7 @@ public class MainServer {
             // create a new service named CounterService
             registry.rebind("CommunicationService", new InterfaceServerImpl());
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         System.out.println("system is ready");
     }
