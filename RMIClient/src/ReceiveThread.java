@@ -32,7 +32,7 @@ public class ReceiveThread implements Runnable {
                 byte[] encryptedMessageWithMetadata = server.receiveMessage(cellIndex, preimageTag);
 
                 if(encryptedMessageWithMetadata==null)
-                    return;
+                    continue;
 
                 Cipher cipher = Cipher.getInstance("AES");
                 cipher.init(Cipher.DECRYPT_MODE, c.getOtherKey());
