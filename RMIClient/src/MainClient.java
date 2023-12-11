@@ -40,8 +40,7 @@ public class MainClient extends Application {
 
         // search for CommunicationService
         server = (InterfaceServer) myRegistry.lookup("CommunicationService");
-        int bulletinBoardCells = server.getBulletinBoardCells();
-        Conversation.setBulletinBoardCells( String.valueOf(bulletinBoardCells).length() );
+        Conversation.setBulletinBoardCells( server.getBulletinBoardCells() );
 
         Scene scene = new Scene(root, 810, 410);
         stage.setScene(scene);
