@@ -15,24 +15,24 @@ public class Conversation {
     private String name;
     private SecretKey ownKey;
     private int ownCell;
-    private String ownTag;
+    private String ownPreimageTag;
     private SecretKey otherKey;
     private int otherCell;
-    private String otherTag;
+    private String otherPreimageTag;
 
     public Conversation() throws NoSuchAlgorithmException {
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         keyGen.init(256);
         this.ownKey = keyGen.generateKey();
         this.ownCell = getNewCell();
-        this.ownTag = getNewTag();
+        this.ownPreimageTag = getNewPreimageTag();
     }
 
-    public void setOther(String name, SecretKey otherKey, int otherCell, String otherTag) {
+    public void setOther(String name, SecretKey otherKey, int otherCell, String otherPreimageTag) {
         this.name = name;
         this.otherKey = otherKey;
         this.otherCell = otherCell;
-        this.otherTag = otherTag;
+        this.otherPreimageTag = otherPreimageTag;
     }
 
     public static void setBulletinBoardCells(int bulletinBoardCells) {
@@ -53,20 +53,20 @@ public class Conversation {
     public void setNewOwn() throws NoSuchAlgorithmException, InvalidKeySpecException {
         this.ownKey = deriveKey(ownKey);
         this.ownCell = getNewCell();
-        this.ownTag = getNewTag();
+        this.ownPreimageTag = getNewPreimageTag();
     }
 
-    public void setNewOther(int newOtherCell, String newOtherTag) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public void setNewOther(int newOtherCell, String newOtherPreimageTag) throws NoSuchAlgorithmException, InvalidKeySpecException {
         this.otherKey = deriveKey(otherKey);
         this.otherCell = newOtherCell;
-        this.otherTag = newOtherTag;
+        this.otherPreimageTag = newOtherPreimageTag;
     }
 
     private int getNewCell() {
         return new SecureRandom().nextInt(bulletinBoardCells);
     }
 
-    private String getNewTag() {
+    private String getNewPreimageTag() {
         return UUID.randomUUID().toString();
     }
 
@@ -82,8 +82,8 @@ public class Conversation {
         return ownCell;
     }
 
-    public String getOwnTag() {
-        return ownTag;
+    public String getOwnPreimageTag() {
+        return ownPreimageTag;
     }
 
     public SecretKey getOtherKey() {
@@ -94,7 +94,7 @@ public class Conversation {
         return otherCell;
     }
 
-    public String getOtherTag() {
-        return otherTag;
+    public String getOtherPreimageTag() {
+        return otherPreimageTag;
     }
 }

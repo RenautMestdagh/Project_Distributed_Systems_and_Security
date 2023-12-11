@@ -130,7 +130,7 @@ public class GUIController {
 
         String sb = Base64.getEncoder().encodeToString(tmpConversation.getOwnKey().getEncoded()) + "\n\n" +
                 tmpConversation.getOwnCell() + "\n\n" +
-                tmpConversation.getOwnTag();
+                tmpConversation.getOwnPreimageTag();
 
         newChatOwnInfo.setText(sb);
 

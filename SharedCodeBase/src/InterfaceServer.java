@@ -5,7 +5,6 @@ import java.security.NoSuchAlgorithmException;
 public interface InterfaceServer extends Remote {
 
     int getBulletinBoardCells () throws RemoteException;
-    void sendMessage(int cellIndex, String preimageTag, byte[] message) throws RemoteException, NoSuchAlgorithmException;
+    void sendMessage(int cellIndex, String tag, byte[] message) throws RemoteException;
     byte[] receiveMessage(int cellIndex, String preimageTag) throws RemoteException, NoSuchAlgorithmException;
-    void removeMessage(int cellIndex, String preimageTag) throws RemoteException, NoSuchAlgorithmException;
 }

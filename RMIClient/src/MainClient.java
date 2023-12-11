@@ -68,17 +68,17 @@ public class MainClient extends Application {
 
         SecretKey currOwnKey = c.getOwnKey();
         int currOwnCell = c.getOwnCell();
-        String currOwnTag = c.getOwnTag();
+        String currOwnPreimageTag = c.getOwnPreimageTag();
 
         c.setNewOwn();
 
         int nextOwnCell = c.getOwnCell();
-        String nextTag = c.getOwnTag();
+        String nextPreimageTag = c.getOwnPreimageTag();
 
-        String messageWithMetadata = message+","+nextOwnCell+","+nextTag;
+        String messageWithMetadata = message+","+nextOwnCell+","+nextPreimageTag;
         byte[] encryptedMessageWithMetadata = encryptMessageWithSymmetricKey(messageWithMetadata, currOwnKey);
 
-        server.sendMessage(currOwnCell, currOwnTag, encryptedMessageWithMetadata);
+        server.sendMessage(currOwnCell, cryptographicHash.hashPreimageTag(currOwnPreimageTag), encryptedMessageWithMetadata);
     }
 
     public Conversation startNewConversation() throws NoSuchAlgorithmException {

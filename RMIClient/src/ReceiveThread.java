@@ -25,32 +25,31 @@ public class ReceiveThread implements Runnable {
     public void run() {
         try {
             for (Conversation c : conversations.values()) {
+                while(true){
 
-                int cellIndex = c.getOtherCell();
-                String preimageTag = c.getOtherTag();
+                    byte[] encryptedMessageWithMetadata = server.receiveMessage(c.getOtherCell(), c.getOtherPreimageTag());
 
-                byte[] encryptedMessageWithMetadata = server.receiveMessage(cellIndex, preimageTag);
+                    if(encryptedMessageWithMetadata==null)
+                        break;
 
-                if(encryptedMessageWithMetadata==null)
-                    continue;
+                    Cipher cipher = Cipher.getInstance("AES");
+                    cipher.init(Cipher.DECRYPT_MODE, c.getOtherKey());
 
-                Cipher cipher = Cipher.getInstance("AES");
-                cipher.init(Cipher.DECRYPT_MODE, c.getOtherKey());
+                    String messageWithMetadata = new String(cipher.doFinal(Base64.getDecoder().decode(encryptedMessageWithMetadata)), StandardCharsets.UTF_8);
 
-                String messageWithMetadata = new String(cipher.doFinal(Base64.getDecoder().decode(encryptedMessageWithMetadata)), StandardCharsets.UTF_8);
-                server.removeMessage(cellIndex, preimageTag);
+                    // String messageWithMetadata is built as: message,cellIndex,preimageTag
 
-                // String messageWithMetadata is built as: message,cellIndex,preimageTag
+                    int lastCommaIndex = messageWithMetadata.lastIndexOf(",");
+                    int secondLastCommaIndex = messageWithMetadata.lastIndexOf(',', lastCommaIndex - 1);
 
-                int lastCommaIndex = messageWithMetadata.lastIndexOf(",");
-                int secondLastCommaIndex = messageWithMetadata.lastIndexOf(',', lastCommaIndex - 1);
+                    String message = messageWithMetadata.substring(0, secondLastCommaIndex);
+                    int nextCellIndex = Integer.parseInt(messageWithMetadata.substring(secondLastCommaIndex+1, lastCommaIndex));
+                    String nextPreimageTag = messageWithMetadata.substring(lastCommaIndex + 1);
 
-                String message = messageWithMetadata.substring(0, secondLastCommaIndex);
-                int nextCellIndex = Integer.parseInt(messageWithMetadata.substring(secondLastCommaIndex+1, lastCommaIndex));
-                String nextPreimageTag = messageWithMetadata.substring(lastCommaIndex + 1);
+                    c.setNewOther(nextCellIndex, nextPreimageTag);
+                    controller.addMessage(c.getName(), "Other", message);
 
-                c.setNewOther(nextCellIndex, nextPreimageTag);
-                controller.addMessage(c.getName(), "Other", message);
+                }
             }
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException | RemoteException e) {
             throw new RuntimeException(e);

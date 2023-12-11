@@ -7,7 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="Interfaces" />
+    <orderEntry type="module" module-name="SharedCodeBase" />
     <orderEntry type="library" name="javafx-sdk-21" level="application" />
   </component>
 </module>
